@@ -19,10 +19,12 @@ module CompassRails
         Compass.add_configuration(:rails)
         Compass.add_configuration(data)
         Compass.configuration.on_sprite_saved do |filename|
+          puts filename
           if Rails.application.config.assets.digest && # if digesting is enabled
               caller.grep(%r{/sprockets/rails/task.rb}).any? && #OMG HAX - check if we're being precompiled
               Compass.configuration.generated_images_path[Compass.configuration.images_path.to_s] # if the generated images path is not in the assets images directory, we don't have to do these backflips
 
+            puts CompassRails.sprockets
             # Clear entries in Hike::Index for this sprite's directory.
             # This makes sure the asset can be found by find_assets
             if CompassRails.sprockets.respond_to?(:trail, true)
@@ -36,18 +38,19 @@ module CompassRails
 
             pathname      = Pathname.new(filename)
             logical_path  = pathname.relative_path_from(Pathname.new(Compass.configuration.images_path)).to_s
+            puts logical_path
             asset         = CompassRails.sprockets.find_asset(logical_path)
             target        = File.join(Rails.public_path, Rails.application.config.assets.prefix, asset.digest_path)
+
+            # Adds the fingerprinted asset to the public directory
+            FileUtils.mkdir_p File.dirname(target)
+            asset.write_to target
 
             # Adds the asset to the manifest file.
 
             manifest = ActionView::Base.assets_manifest
             manifest.assets[logical_path] = asset.digest_path
 
-
-            # Adds the fingerprinted asset to the public directory
-            FileUtils.mkdir_p File.dirname(target)
-            asset.write_to target
 
           end
         end

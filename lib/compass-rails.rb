@@ -35,6 +35,10 @@ module CompassRails
     end
 
     def sprockets
+      puts "Init 1"
+      puts Rails.application.assets
+      puts "Init 2"
+      puts ::Sprockets::Railtie.build_environment(Rails.application)
       @sprockets ||= Rails.application.assets || ::Sprockets::Railtie.build_environment(Rails.application)
     end
 

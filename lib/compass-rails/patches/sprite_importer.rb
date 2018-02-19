@@ -17,8 +17,8 @@ module CompassRails
           begin
             pathname = context.resolve(relative_path.to_s)
             context.depend_on_asset(pathname)
-          rescue Sprockets::FileNotFound
-
+          rescue Sprockets::FileNotFound, Exception => e
+            puts e
           end
         end
       end
